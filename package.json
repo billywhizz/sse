@@ -1,0 +1,8 @@
+{
+  "name": "sse",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "4.11.2",
+    "connect-sse": "1.1.0"
+  }
+}
