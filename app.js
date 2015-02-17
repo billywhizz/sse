@@ -10,4 +10,4 @@ app.get('/events', sse, function (req, res) {
     })
   }, 1000);
 });
-app.listen(8003);
+app.listen(80);
