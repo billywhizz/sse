@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript">
+var evtSource = new EventSource("/events");
+evtSource.onmessage = function(e) {
+  var newElement = document.createElement("li");
+  var message = JSON.parse(e.data);
+  newElement.innerHTML = "message: " + message.message + ", time: " + (new Date(message.time)).toISOString();
+  eventList.appendChild(newElement);
+}
+</script>
+<body>
+<ul id="eventList">
+
+</ul>
+</body>
+</html>
