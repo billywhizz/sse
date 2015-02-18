@@ -1,14 +1,37 @@
 <html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script type="text/javascript">
 var evtSource = new EventSource("/events");
-evtSource.onmessage = function(e) {
+function addMessage(container, message) {
   var newElement = document.createElement("li");
-  var message = JSON.parse(e.data);
-  newElement.innerHTML = "message: " + message.message + ", time: " + (new Date(message.time)).toISOString();
-  eventList.appendChild(newElement);
+  newElement.innerHTML = message;
+  if(!container.children.length) {
+    container.appendChild(newElement);
+  }
+  else {
+    container.insertBefore(newElement, container.childNodes[0]);
+  }
+  if(container.childNodes.length == 21) {
+    container.removeChild(container.childNodes[20]);
+  }
 }
+evtSource.onmessage = function(e) {
+  var message = JSON.parse(e.data);
+  addMessage(messages, message.message);
+}
+evtSource.addEventListener("ping", function(e) {
+  var message = JSON.parse(e.data);
+  addMessage(pings, (new Date(message.time)).toISOString());
+});
 </script>
-<ul id="eventList">
-
-</ul>
+</head>
+<body>
+<div style="width: 300px; float: left;">
+  <ul id="messages"></ul>
+</div>
+<div style="width: 300px; float: left;">
+  <ul id="pings"></ul>
+</div>
+</body>
 </html>
