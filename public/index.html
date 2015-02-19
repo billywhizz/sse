@@ -2,7 +2,6 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script type="text/javascript">
-var evtSource = new EventSource("/events");
 function addMessage(container, message) {
   var newElement = document.createElement("li");
   newElement.innerHTML = message;
@@ -16,22 +15,47 @@ function addMessage(container, message) {
     container.removeChild(container.childNodes[20]);
   }
 }
-evtSource.onmessage = function(e) {
-  var message = JSON.parse(e.data);
-  addMessage(messages, message.message);
+
+function Subscriber(path, topic) {
+  var source;
+  var _subscriber = this;
+  this.subscribe = function(cb) {
+    source = new EventSource("/events");
+    source.addEventListener(topic, function(e) {
+      cb(JSON.parse(e.data));
+    });
+    source.addEventListener("open", function() {
+      console.log(path + ":" + topic + ":open");
+    });
+    source.addEventListener("error", function(e) {
+      if(_subscriber.onError) _subscriber.onError(e);
+    });
+  };
+  this.unsubscribe = function() {
+    source.close();
+  };
 }
-evtSource.addEventListener("ping", function(e) {
-  var message = JSON.parse(e.data);
+
+var ping = new Subscriber("/events", "ping");
+ping.subscribe(function(message) {
   addMessage(pings, (new Date(message.time)).toISOString());
 });
+ping.onError = function(err) {
+  console.error(err);
+};
+var ping2 = new Subscriber("/events", "ping");
+ping2.subscribe(function(message) {
+  addMessage(pings2, (new Date(message.time)).toISOString());
+});
+ping2.onError = function(err) {
+  console.error(err);
+};
 </script>
 </head>
 <body>
 <div style="width: 300px; float: left;">
-  <ul id="messages"></ul>
-</div>
-<div style="width: 300px; float: left;">
   <ul id="pings"></ul>
+  <ul id="pings2"></ul>
 </div>
 </body>
 </html>
